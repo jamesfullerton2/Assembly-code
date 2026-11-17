@@ -1,0 +1,98 @@
+; --------------------------------------
+;	Adding Two 2-Digit Numbers
+; --------------------------------------
+
+;----------------------------------
+;      Getting first number
+;----------------------------------
+
+
+Start:
+in 00 ;asks for input
+sub al,30 ;subtracts to put it into ASCII
+mul al, 0A ;turns it into a 10
+push al ;puts a copy on the stack
+
+
+in 00 
+sub al, 30 ; makes al become the number needed
+pop bl ; gets the 30 back from before
+add al , bl ; adds them together to get 32
+push al ; stores 32 so it stays around while you type the second number
+cmp dl, 0 ;checks if we've got both numbers
+jnz symbol ;if so then input the symbol 
+inc dl ;if not set the counter up by 1 
+jmp Start ; and loop back around again
+
+;-------------------------------------------------------
+;               Determing the symbol
+;-------------------------------------------------------
+
+symbol:
+in 00
+push al ;puts the operator on the stack
+pop cl ; gets the operator straight off the stack and it's saved in cl
+pop bl ; 10s is  saved here
+pop al ; units is saved here
+cmp cl, 2B ;Checks for +
+jz addtogether
+cmp cl, 2D ;Checks for -
+jz dosub
+cmp cl, 2A ;Checks for *
+jz domul
+cmp cl, 2F ; Checks for /
+jz dodiv
+jmp symbol ;if nothing valid is put in then go looking for the symbol again
+
+
+
+;---------------------------------------
+;      Working with the numbers
+;---------------------------------------
+
+
+addtogether:
+add al, bl ; adds the numbers and saves it in al
+jmp prep ; sends it off to be calculated 
+
+dosub:
+sub al,bl ;subtracts the two numbers
+jmp prep  ; sends it off to be calculated
+
+domul:
+mul al,bl ;multiplies the two numbers
+jmp prep ; sends it off to be calculated
+
+dodiv:
+div al,bl ;divides the two numbers
+
+;-------------------------------
+;  Taking the numbers apart
+;-------------------------------
+
+prep:
+mov bl, 30 ; starts bl with storing 0 (the decimal number), this will be our 10s
+mov cl, 30 ;starts bl with storing 0 (the decimal number), this will be our units
+mov dl, 00; starts the counter at 0 (really at 0)
+
+count:
+cmp dl,al ;compaires the sum with al (the sum of numbers)
+jz done ;if they're equal then jump to done
+inc dl ;the count goes up by 1
+inc cl ;the units goes up by 1
+cmp cl, 3a ; this checks if cl has gone past 9
+jnz count ; if it has then go back to counting
+mov cl, 30 ; set the units back to 0
+inc bl ; push up the 10s
+jmp count ; go back to the begining of count
+
+done:
+mov [c0], bl ; display the 10s in c0
+mov [c1], cl; display the units in c1
+mov dl, 00 ;resets dl for the input loop
+jmp Start ; go back to the begining for further input
+
+	
+; --------------------------------------
+	END
+; --------------------------------------
